@@ -21,43 +21,58 @@ public class VisitorVehicleController {
 
     private final VisitorVehicleService service;
 
-    public VisitorVehicleController(
-            VisitorVehicleService service) {
+    public VisitorVehicleController(VisitorVehicleService service) {
         this.service = service;
     }
 
+    // Register visitor
     @PostMapping
     public VisitorVehicle registerVisitor(
             @RequestBody VisitorVehicle visitor,
-            @RequestParam Long flatId,
-            @RequestParam Long slotId) {
-        return service.registerVisitor(visitor, flatId, slotId);
+            @RequestParam(name = "flatId") Long flatId,
+            @RequestParam(name = "slotId") Long slotId) {
+
+        return service.registerVisitor(
+                visitor,
+                flatId,
+                slotId);
     }
 
+    // Get all visitors
     @GetMapping
     public List<VisitorVehicle> getAllVisitors() {
+
         return service.getAllVisitors();
     }
 
+    // Get visitor by ID
     @GetMapping("/{id}")
     public VisitorVehicle getVisitorById(
-            @PathVariable Long id) {
+            @PathVariable(name = "id") Long id) {
+
         return service.getVisitorById(id);
     }
 
+    // Get active visitors
     @GetMapping("/active")
     public List<VisitorVehicle> getActiveVisitors() {
+
         return service.getActiveVisitors();
     }
 
+    // Record visitor exit
     @PutMapping("/{id}/exit")
-    public VisitorVehicle recordExit(@PathVariable Long id) {
+    public VisitorVehicle recordExit(
+            @PathVariable(name = "id") Long id) {
+
         return service.recordExit(id);
     }
 
+    // Get daily visitor log
     @GetMapping("/daily-log")
     public List<VisitorVehicle> getDailyLog(
-            @RequestParam LocalDate date) {
+            @RequestParam(name = "date") LocalDate date) {
+
         return service.getDailyLog(date);
     }
 }

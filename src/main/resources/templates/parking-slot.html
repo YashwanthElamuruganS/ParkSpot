@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>ParkSpot - Parking Slots</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f6fb;
+            color: #26364b;
+        }
+
+        nav {
+            background: #172554;
+            padding: 16px 32px;
+            display: flex;
+            align-items: center;
+            gap: 28px;
+        }
+
+        nav h2 {
+            margin: 0 auto 0 0;
+            color: white;
+            font-size: 22px;
+        }
+
+        nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        nav a:hover {
+            color: #93c5fd;
+        }
+
+        nav a.active {
+            color: #93c5fd;
+        }
+
+        main {
+            max-width: 1200px;
+            margin: 35px auto;
+            padding: 0 20px;
+        }
+
+        h1 {
+            color: #172554;
+            margin-bottom: 25px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 14px;
+            padding: 26px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(15, 23, 42, 0.06);
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 18px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        input {
+            width: 100%;
+            padding: 13px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #2563eb;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 13px 25px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        .message {
+            margin-top: 15px;
+            font-weight: 600;
+        }
+
+        .success {
+            color: #15803d;
+        }
+
+        .error {
+            color: #dc2626;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 14px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background: #eff6ff;
+            color: #475569;
+        }
+
+        tr:hover td {
+            background: #f8fafc;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .available {
+            color: #166534;
+            background: #dcfce7;
+        }
+
+        .occupied {
+            color: #991b1b;
+            background: #fee2e2;
+        }
+
+        .empty {
+            text-align: center;
+            color: #64748b;
+            padding: 25px;
+        }
+
+        @media (max-width: 700px) {
+            nav {
+                flex-wrap: wrap;
+                padding: 15px 20px;
+                gap: 15px;
+            }
+
+            nav h2 {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<nav>
+
+    <h2>ParkSpot</h2>
+
+    <a href="/">Dashboard</a>
+
+    <a href="/visitors">Visitors</a>
+
+    <a href="/flats">Flats</a>
+
+    <a class="active" href="/parking-slots">Parking Slots</a>
+
+    <a href="/daily-log">Daily Log</a>
+
+</nav>
+
+
+<main>
+
+    <h1>Parking Slot Management</h1>
+
+
+    <!-- ADD SLOT -->
+
+    <section class="card">
+
+        <h2>Add Parking Slot</h2>
+
+        <form id="slotForm">
+
+            <div class="form-grid">
+
+                <div>
+
+                    <label for="slotNumber">
+                        Slot Number
+                    </label>
+
+                    <input
+                        type="text"
+                        id="slotNumber"
+                        placeholder="Example: P-02"
+                        required
+                    >
+
+                </div>
+
+            </div>
+
+            <button type="submit">
+                Add Parking Slot
+            </button>
+
+            <div id="message" class="message"></div>
+
+        </form>
+
+    </section>
+
+
+    <!-- ALL SLOTS -->
+
+    <section class="card">
+
+        <h2>All Parking Slots</h2>
+
+        <div class="table-wrap">
+
+            <table>
+
+                <thead>
+
+                    <tr>
+                        <th>ID</th>
+                        <th>Slot Number</th>
+                        <th>Status</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    <tr th:each="slot : ${slots}">
+
+                        <td th:text="${slot.id}">
+                            1
+                        </td>
+
+                        <td th:text="${slot.slotNumber}">
+                            P-01
+                        </td>
+
+                        <td>
+
+                            <span
+                                class="status"
+                                th:classappend="${slot.occupied} ? ' occupied' : ' available'"
+                                th:text="${slot.occupied} ? 'Occupied' : 'Available'">
+                                Available
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+
+                    <tr th:if="${#lists.isEmpty(slots)}">
+
+                        <td
+                            colspan="3"
+                            class="empty">
+
+                            No parking slots found.
+
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<script>
+
+    const slotForm =
+        document.getElementById("slotForm");
+
+    const message =
+        document.getElementById("message");
+
+
+    slotForm.addEventListener(
+        "submit",
+        async function(event) {
+
+            event.preventDefault();
+
+            const slotNumber =
+                document
+                    .getElementById("slotNumber")
+                    .value
+                    .trim();
+
+
+            message.className = "message";
+
+            message.textContent =
+                "Saving...";
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        "/api/slots",
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body: JSON.stringify({
+                                slotNumber:
+                                    slotNumber
+                            })
+                        }
+                    );
+
+
+                const result =
+                    await response
+                        .json()
+                        .catch(() => null);
+
+
+                if (!response.ok) {
+
+                    throw new Error(
+                        result?.message
+                        ||
+                        result?.error
+                        ||
+                        "Failed to add parking slot"
+                    );
+
+                }
+
+
+                message.className =
+                    "message success";
+
+                message.textContent =
+                    "Parking slot added successfully.";
+
+
+                slotForm.reset();
+
+
+                setTimeout(
+                    () => location.reload(),
+                    700
+                );
+
+
+            } catch (error) {
+
+                console.error(error);
+
+                message.className =
+                    "message error";
+
+                message.textContent =
+                    error.message;
+
+            }
+
+        }
+    );
+
+</script>
+
+</body>
+
+</html>

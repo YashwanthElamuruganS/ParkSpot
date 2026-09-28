@@ -1,0 +1,433 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ParkSpot | Dashboard</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f4f7fb;
+            color: #24344d;
+        }
+
+        .layout {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Simple sidebar */
+        .sidebar {
+            width: 245px;
+            background: white;
+            border-right: 1px solid #e2e8f0;
+            padding: 25px 18px;
+            flex-shrink: 0;
+        }
+
+        .logo {
+            font-size: 25px;
+            font-weight: bold;
+            color: #2563eb;
+            padding: 5px 10px 28px;
+            border-bottom: 1px solid #e5eaf0;
+            margin-bottom: 25px;
+        }
+
+        .nav-title {
+            font-size: 12px;
+            color: #8492a6;
+            margin: 20px 12px 12px;
+            font-weight: bold;
+        }
+
+        .nav a {
+            display: block;
+            text-decoration: none;
+            color: #52627a;
+            padding: 13px 14px;
+            margin-bottom: 7px;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+
+        .nav a:hover,
+        .nav a.active {
+            color: #2563eb;
+            background: #edf4ff;
+        }
+
+        /* Main content */
+        .main {
+            flex: 1;
+            min-width: 0;
+            padding: 32px 38px;
+        }
+
+        h1 {
+            font-size: 27px;
+            margin: 0 0 25px;
+            color: #24344d;
+        }
+
+        .filters {
+            display: flex;
+            gap: 14px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+        }
+
+        select, input[type="date"] {
+            padding: 12px 15px;
+            border: 1px solid #cbd5e1;
+            border-radius: 8px;
+            background: white;
+            color: #334155;
+            font-size: 14px;
+            min-width: 200px;
+        }
+
+       
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+            gap: 18px;
+            margin-bottom: 32px;
+        }
+
+        .card {
+            padding: 25px 15px;
+            border-radius: 13px;
+            text-align: center;
+        }
+
+        .card h2 {
+            font-size: 30px;
+            margin: 5px 0 8px;
+        }
+
+        .card p {
+            margin: 0;
+            font-size: 14px;
+        }
+
+        .blue {
+            background: #dce8ff;
+            color: #214eaf;
+        }
+
+        .green {
+            background: #d2f6d7;
+            color: #18743b;
+        }
+
+        .cyan {
+            background: #d8f5fb;
+            color: #12627b;
+        }
+
+        .yellow {
+            background: #fff3c9;
+            color: #94600c;
+        }
+
+        /* Content panels */
+        .section-title {
+            font-size: 21px;
+            margin: 0 0 18px;
+        }
+
+        .panels {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 22px;
+            margin-bottom: 30px;
+        }
+
+        .panel {
+            background: white;
+            border: 1px solid #e5eaf0;
+            border-radius: 12px;
+            padding: 23px;
+            min-height: 220px;
+        }
+
+        .panel h3 {
+            font-size: 17px;
+            margin: 0 0 22px;
+        }
+
+        .summary {
+            display: flex;
+            gap: 35px;
+        }
+
+        .summary span {
+            display: block;
+            margin-bottom: 8px;
+            color: #74839a;
+            font-size: 14px;
+        }
+
+        .summary strong {
+            font-size: 25px;
+        }
+
+        .red {
+            color: #dc2626;
+        }
+
+        .available {
+            color: #16a34a;
+        }
+
+        /* Tables */
+        .table-panel {
+            background: white;
+            border: 1px solid #e5eaf0;
+            border-radius: 12px;
+            padding: 23px;
+            margin-bottom: 25px;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 14px;
+        }
+
+        th {
+            background: #f5f8fb;
+            color: #64748b;
+            font-weight: 600;
+        }
+
+        th, td {
+            padding: 15px;
+            border-bottom: 1px solid #edf0f4;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .status.occupied {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .empty {
+            text-align: center;
+            color: #94a3b8;
+            padding: 35px;
+        }
+
+        @media (max-width: 1000px) {
+            .cards {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .panels {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 650px) {
+            .layout {
+                flex-direction: column;
+            }
+
+            .sidebar {
+                width: 100%;
+                padding: 12px;
+            }
+
+            .logo {
+                padding-bottom: 12px;
+                margin-bottom: 10px;
+            }
+
+            .nav {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+
+            .nav a {
+                padding: 10px;
+                margin: 0;
+            }
+
+            .nav-title {
+                display: none;
+            }
+
+            .main {
+                padding: 22px 15px;
+            }
+
+            .cards {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+
+            .card {
+                padding: 20px 8px;
+            }
+
+            select, input[type="date"] {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+<div class="layout">
+
+    <aside class="sidebar">
+        <div class="logo">ParkSpot</div>
+
+        <div class="nav-title">MENU</div>
+        <nav class="nav">
+            <a th:href="@{/}" class="active">Dashboard</a>
+            <a th:href="@{/visitors}">Visitors</a>
+            <a th:href="@{/flats}">Flats</a>
+            <a th:href="@{/parking-slots}">Parking Slots</a>
+            <a th:href="@{/daily-log}">Daily Log</a>
+        </nav>
+    </aside>
+
+    <main class="main">
+        <h1>Parking Dashboard</h1>
+
+        <div class="filters">
+            <select aria-label="Select parking slot">
+                <option value="">All Parking Slots</option>
+                <option th:each="slot : ${slots}"
+                        th:value="${slot.id}"
+                        th:text="${slot.slotNumber}">
+                </option>
+            </select>
+
+            <input type="date" aria-label="Select date"
+                   th:value="${#temporals.format(
+                       T(java.time.LocalDate).now(), 'yyyy-MM-dd')}">
+        </div>
+
+        <section class="cards">
+            <div class="card blue">
+                <h2 th:text="${slotCount}">0</h2>
+                <p>Total Slots</p>
+            </div>
+
+            <div class="card green">
+                <h2 th:text="${availableCount}">0</h2>
+                <p>Available</p>
+            </div>
+
+            <div class="card cyan">
+                <h2 th:text="${flatCount}">0</h2>
+                <p>Total Flats</p>
+            </div>
+
+            <div class="card yellow">
+                <h2 th:text="${visitorCount}">0</h2>
+                <p>Total Visitors</p>
+            </div>
+        </section>
+
+        <h2 class="section-title">Overall Parking</h2>
+
+        <section class="panels">
+            <div class="panel">
+                <h3>Parking Overview</h3>
+
+                <table>
+                    <thead>
+                    <tr>
+                        <th>Slot Number</th>
+                        <th>Status</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr th:each="slot : ${slots}">
+                        <td th:text="${slot.slotNumber}">P-01</td>
+                        <td>
+                            <span class="status"
+                                  th:classappend="${slot.occupied} ? ' occupied' : ''"
+                                  th:text="${slot.occupied ? 'Occupied' : 'Available'}">
+                                Available
+                            </span>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(slots)}">
+                        <td colspan="2" class="empty">
+                            No parking slots have been added.
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="panel">
+                <h3>Parking Summary</h3>
+
+                <div class="summary">
+                    <div>
+                        <span>Occupied</span>
+                        <strong class="red"
+                                th:text="${slotCount - availableCount}">0</strong>
+                    </div>
+                    <div>
+                        <span>Available</span>
+                        <strong class="available"
+                                th:text="${availableCount}">0</strong>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="table-panel">
+            <h2 class="section-title">Recent Visitors</h2>
+
+            <table>
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Vehicle Number</th>
+                    <th>Entry Time</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="visitor : ${visitors}">
+                    <td th:text="${visitor.visitorName}">Yash</td>
+                    <td th:text="${visitor.vehicleNumber}">TN21YA2008</td>
+                    <td th:text="${visitor.entryTime}">Entry Time</td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(visitors)}">
+                    <td colspan="3" class="empty">
+                        No visitors recorded yet.
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+</div>
+</body>
+</html>

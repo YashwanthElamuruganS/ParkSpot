@@ -1,0 +1,69 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ParkSpot | Daily Log</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: Arial, sans-serif; background: #f1f5f9; color: #1e293b; }
+        nav { background: #172554; padding: 18px 30px; display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
+        nav h2 { color: white; margin: 0 auto 0 0; }
+        nav a { color: #e2e8f0; text-decoration: none; font-weight: bold; }
+        nav a:hover, nav a.active { color: #93c5fd; }
+        main { max-width: 1200px; margin: auto; padding: 30px; }
+        h1 { margin: 0 0 25px; }
+        .panel { background: white; padding: 24px; border-radius: 12px; box-shadow: 0 3px 12px #0000000d; }
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 500px; }
+        th, td { text-align: left; padding: 14px; border-bottom: 1px solid #e2e8f0; }
+        th { background: #eff6ff; color: #334155; }
+        tbody tr:hover { background: #f8fafc; }
+        .count { color: #64748b; margin: 0 0 20px; }
+        @media(max-width: 600px) { main { padding: 16px; } nav { padding: 16px; gap: 14px; } }
+    </style>
+</head>
+<body>
+<nav>
+    <h2>ParkSpot</h2>
+    <a href="/">Dashboard</a>
+    <a href="/visitors">Visitors</a>
+    <a href="/flats">Flats</a>
+    <a href="/parking-slots">Parking Slots</a>
+    <a class="active" href="/daily-log">Daily Log</a>
+</nav>
+<main>
+    <h1>Daily Visitor Log</h1>
+    <section class="panel">
+        <p class="count">
+            Visitor records:
+            <strong th:text="${#lists.size(visitors)}">0</strong>
+        </p>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Visitor Name</th>
+                        <th>Vehicle Number</th>
+                        <th>Entry Time</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="visitor : ${visitors}">
+                        <td th:text="${visitor.id}"></td>
+                        <td th:text="${visitor.visitorName}"></td>
+                        <td th:text="${visitor.vehicleNumber}"></td>
+                        <td th:text="${visitor.entryTime}"></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(visitors)}">
+                        <td colspan="4">No visitor records available.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+</body>
+</html>

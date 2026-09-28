@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>ParkSpot - Visitors</title>
+
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            background: #f3f6fb;
+            color: #26364b;
+        }
+
+        nav {
+            background: #172554;
+            padding: 16px 30px;
+            display: flex;
+            align-items: center;
+            gap: 28px;
+            flex-wrap: wrap;
+        }
+
+        nav h2 {
+            margin: 0 auto 0 0;
+            color: white;
+        }
+
+        nav a {
+            color: #dbeafe;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        nav a:hover {
+            color: white;
+        }
+
+        main {
+            max-width: 1250px;
+            margin: 35px auto;
+            padding: 0 20px;
+        }
+
+        h1 {
+            margin-bottom: 25px;
+            color: #172554;
+        }
+
+        .card {
+            background: white;
+            border-radius: 14px;
+            padding: 26px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 15px rgba(15, 23, 42, 0.06);
+        }
+
+        .card h2 {
+            margin-top: 0;
+            color: #172554;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+        }
+
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 7px;
+            font-size: 14px;
+            background: white;
+        }
+
+        input:focus,
+        select:focus {
+            outline: 2px solid #93c5fd;
+            border-color: #2563eb;
+        }
+
+        button {
+            margin-top: 20px;
+            padding: 12px 24px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 7px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #1d4ed8;
+        }
+
+        .exit-btn {
+            margin-top: 0;
+            padding: 8px 16px;
+            background: #dc2626;
+        }
+
+        .exit-btn:hover {
+            background: #b91c1c;
+        }
+
+        .message {
+            margin-top: 15px;
+            font-weight: 600;
+        }
+
+        .success {
+            color: #15803d;
+        }
+
+        .error {
+            color: #dc2626;
+        }
+
+        .table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            min-width: 850px;
+        }
+
+        th,
+        td {
+            text-align: left;
+            padding: 14px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            background: #eff6ff;
+            color: #334155;
+        }
+
+        tr:hover {
+            background: #f8fafc;
+        }
+
+        .status {
+            display: inline-block;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .parked {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .exited {
+            background: #e2e8f0;
+            color: #475569;
+        }
+
+        .empty {
+            text-align: center;
+            color: #64748b;
+            padding: 25px;
+        }
+
+        @media (max-width: 900px) {
+            .form-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            nav {
+                gap: 15px;
+                padding: 16px;
+            }
+
+            main {
+                margin-top: 20px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<nav>
+    <h2>ParkSpot</h2>
+
+    <!-- Forces a fresh request to the dashboard -->
+    <a href="/"
+       onclick="window.location.href='/?refresh=' + Date.now(); return false;">
+        Dashboard
+    </a>
+
+    <a href="/visitors">Visitors</a>
+    <a href="/flats">Flats</a>
+    <a href="/parking-slots">Parking Slots</a>
+    <a href="/daily-log">Daily Log</a>
+</nav>
+
+<main>
+
+    <h1>Visitor Management</h1>
+
+    <!-- ================= REGISTER VISITOR ================= -->
+
+    <section class="card">
+
+        <h2>Register Visitor</h2>
+
+        <form id="visitorForm">
+
+            <div class="form-grid">
+
+                <div>
+                    <label for="visitorName">
+                        Visitor Name
+                    </label>
+
+                    <input
+                        type="text"
+                        id="visitorName"
+                        placeholder="Enter visitor name"
+                        required>
+                </div>
+
+                <div>
+                    <label for="vehicleNumber">
+                        Vehicle Number
+                    </label>
+
+                    <input
+                        type="text"
+                        id="vehicleNumber"
+                        placeholder="TN01AB1234"
+                        required>
+                </div>
+
+                <div>
+                    <label for="flatId">
+                        Flat
+                    </label>
+
+                    <select id="flatId" required>
+                        <option value="">
+                            Select Flat
+                        </option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="slotId">
+                        Parking Slot
+                    </label>
+
+                    <select id="slotId" required>
+                        <option value="">
+                            Select Parking Slot
+                        </option>
+                    </select>
+                </div>
+
+            </div>
+
+            <button type="submit">
+                Register Visitor
+            </button>
+
+            <div id="message" class="message"></div>
+
+        </form>
+
+    </section>
+
+
+    <!-- ================= VISITOR RECORDS ================= -->
+
+    <section class="card">
+
+        <h2>Visitor Records</h2>
+
+        <div class="table-wrap">
+
+            <table>
+
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Vehicle Number</th>
+                        <th>Entry Time</th>
+                        <th>Exit Time</th>
+                        <th>Parking Slot</th>
+                        <th>Status</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    <tr th:each="visitor : ${visitors}">
+
+                        <td th:text="${visitor.id}">
+                            1
+                        </td>
+
+                        <td th:text="${visitor.visitorName}">
+                            Yash
+                        </td>
+
+                        <td th:text="${visitor.vehicleNumber}">
+                            TN21YA2008
+                        </td>
+
+                        <td th:text="${visitor.entryTime}">
+                            -
+                        </td>
+
+                        <td>
+                            <span
+                                th:if="${visitor.exitTime != null}"
+                                th:text="${visitor.exitTime}">
+                            </span>
+
+                            <span
+                                th:if="${visitor.exitTime == null}">
+                                -
+                            </span>
+                        </td>
+
+                        <td>
+                            <span
+                                th:if="${visitor.parkingSlot != null}"
+                                th:text="${visitor.parkingSlot.slotNumber}">
+                            </span>
+
+                            <span
+                                th:if="${visitor.parkingSlot == null}">
+                                -
+                            </span>
+                        </td>
+
+                        <td>
+
+                            <span
+                                th:if="${visitor.exitTime == null}"
+                                class="status parked">
+                                Parked
+                            </span>
+
+                            <span
+                                th:if="${visitor.exitTime != null}"
+                                class="status exited">
+                                Exited
+                            </span>
+
+                        </td>
+
+                        <td>
+
+                            <button
+                                th:if="${visitor.exitTime == null}"
+                                class="exit-btn"
+                                th:attr="data-id=${visitor.id}"
+                                onclick="exitVehicle(this)">
+                                Exit Vehicle
+                            </button>
+
+                            <span
+                                th:if="${visitor.exitTime != null}">
+                                Completed
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                    <tr th:if="${#lists.isEmpty(visitors)}">
+
+                        <td colspan="8" class="empty">
+                            No visitors found.
+                        </td>
+
+                    </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </section>
+
+</main>
+
+
+<script>
+
+    /* =====================================================
+       LOAD FLATS
+       ===================================================== */
+
+    async function loadFlats() {
+
+        const flatSelect =
+            document.getElementById("flatId");
+
+        try {
+
+            const response =
+                await fetch("/api/flats");
+
+            if (!response.ok) {
+                throw new Error("Unable to load flats");
+            }
+
+            const flats =
+                await response.json();
+
+            flats.forEach(flat => {
+
+                const option =
+                    document.createElement("option");
+
+                option.value = flat.id;
+
+                option.textContent =
+                    flat.flatNumber;
+
+                flatSelect.appendChild(option);
+
+            });
+
+        } catch (error) {
+
+            console.error(error);
+
+        }
+    }
+
+
+    /* =====================================================
+       LOAD AVAILABLE PARKING SLOTS
+       ===================================================== */
+
+    async function loadSlots() {
+
+        const slotSelect =
+            document.getElementById("slotId");
+
+        try {
+
+            const response =
+                await fetch("/api/slots/available");
+
+            if (!response.ok) {
+                throw new Error(
+                    "Unable to load parking slots"
+                );
+            }
+
+            const slots =
+                await response.json();
+
+            slots.forEach(slot => {
+
+                const option =
+                    document.createElement("option");
+
+                option.value = slot.id;
+
+                option.textContent =
+                    slot.slotNumber;
+
+                slotSelect.appendChild(option);
+
+            });
+
+        } catch (error) {
+
+            console.error(error);
+
+        }
+    }
+
+
+    /* =====================================================
+       REGISTER VISITOR
+       ===================================================== */
+
+    document
+        .getElementById("visitorForm")
+        .addEventListener("submit", async function(event) {
+
+            event.preventDefault();
+
+            const message =
+                document.getElementById("message");
+
+            const visitorName =
+                document
+                    .getElementById("visitorName")
+                    .value
+                    .trim();
+
+            const vehicleNumber =
+                document
+                    .getElementById("vehicleNumber")
+                    .value
+                    .trim();
+
+            const flatId =
+                document
+                    .getElementById("flatId")
+                    .value;
+
+            const slotId =
+                document
+                    .getElementById("slotId")
+                    .value;
+
+
+            if (!flatId || !slotId) {
+
+                message.className =
+                    "message error";
+
+                message.textContent =
+                    "Please select a flat and parking slot.";
+
+                return;
+            }
+
+
+            message.className =
+                "message";
+
+            message.textContent =
+                "Registering visitor...";
+
+
+            try {
+
+                const response =
+                    await fetch(
+                        `/api/visitors?flatId=${flatId}&slotId=${slotId}`,
+                        {
+                            method: "POST",
+
+                            headers: {
+                                "Content-Type":
+                                    "application/json"
+                            },
+
+                            body: JSON.stringify({
+                                visitorName:
+                                    visitorName,
+
+                                vehicleNumber:
+                                    vehicleNumber
+                            })
+                        }
+                    );
+
+
+                if (!response.ok) {
+
+                    const error =
+                        await response
+                            .json()
+                            .catch(() => ({}));
+
+                    throw new Error(
+                        error.message ||
+                        error.error ||
+                        "Failed to register visitor"
+                    );
+                }
+
+
+                message.className =
+                    "message success";
+
+                message.textContent =
+                    "Visitor registered successfully.";
+
+
+                setTimeout(() => {
+
+                    location.reload();
+
+                }, 700);
+
+
+            } catch (error) {
+
+                message.className =
+                    "message error";
+
+                message.textContent =
+                    error.message;
+
+            }
+
+        });
+
+
+    /* =====================================================
+       EXIT VEHICLE
+       ===================================================== */
+
+    async function exitVehicle(button) {
+
+        const visitorId =
+            button.getAttribute("data-id");
+
+
+        if (!confirm(
+            "Are you sure this vehicle has exited?"
+        )) {
+            return;
+        }
+
+
+        button.disabled = true;
+
+        button.textContent =
+            "Processing...";
+
+
+        try {
+
+            const response =
+                await fetch(
+                    `/api/visitors/${visitorId}/exit`,
+                    {
+                        method: "PUT"
+                    }
+                );
+
+
+            if (!response.ok) {
+
+                const error =
+                    await response
+                        .json()
+                        .catch(() => ({}));
+
+                throw new Error(
+                    error.message ||
+                    error.error ||
+                    "Unable to record exit"
+                );
+            }
+
+
+            alert(
+                "Vehicle exit recorded successfully."
+            );
+
+
+            location.reload();
+
+
+        } catch (error) {
+
+            alert(
+                "Error: " + error.message
+            );
+
+            button.disabled = false;
+
+            button.textContent =
+                "Exit Vehicle";
+        }
+    }
+
+
+    /* =====================================================
+       INITIAL LOAD
+       ===================================================== */
+
+    loadFlats();
+    loadSlots();
+
+</script>
+
+</body>
+</html>

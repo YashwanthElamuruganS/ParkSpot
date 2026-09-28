@@ -1,0 +1,121 @@
+
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ParkSpot | Flats</title>
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: Arial, sans-serif; background: #f1f5f9; color: #1e293b; }
+        nav { background: #172554; padding: 18px 30px; display: flex; align-items: center; gap: 22px; flex-wrap: wrap; }
+        nav h2 { color: white; margin: 0 auto 0 0; }
+        nav a { color: #e2e8f0; text-decoration: none; font-weight: bold; }
+        nav a:hover, nav a.active { color: #93c5fd; }
+        main { max-width: 1200px; margin: auto; padding: 30px; }
+        h1 { margin: 0 0 25px; }
+        .panel { background: white; padding: 24px; border-radius: 12px; margin-bottom: 24px; box-shadow: 0 3px 12px #0000000d; }
+        h2 { font-size: 20px; margin: 0 0 20px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 18px; }
+        label { display: block; font-weight: bold; margin-bottom: 8px; }
+        input { width: 100%; padding: 12px; border: 1px solid #cbd5e1; border-radius: 7px; font-size: 15px; }
+        input:focus { outline: 2px solid #93c5fd; border-color: #2563eb; }
+        button { margin-top: 18px; background: #2563eb; color: white; border: 0; padding: 12px 22px; border-radius: 7px; cursor: pointer; font-weight: bold; }
+        button:hover { background: #1d4ed8; }
+        .message { margin-top: 12px; font-weight: bold; }
+        .error { color: #b91c1c; }
+        .success { color: #15803d; }
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 400px; }
+        th, td { text-align: left; padding: 13px; border-bottom: 1px solid #e2e8f0; }
+        th { background: #eff6ff; }
+        @media(max-width: 600px) { main { padding: 16px; } nav { padding: 16px; gap: 14px; } }
+    </style>
+</head>
+<body>
+<nav>
+    <h2>ParkSpot</h2>
+    <a href="/">Dashboard</a>
+    <a href="/visitors">Visitors</a>
+    <a class="active" href="/flats">Flats</a>
+    <a href="/parking-slots">Parking Slots</a>
+    <a href="/daily-log">Daily Log</a>
+</nav>
+<main>
+    <h1>Flat Management</h1>
+
+    <section class="panel">
+        <h2>Add Flat</h2>
+        <form id="flatForm">
+            <div class="form-grid">
+                <div>
+                    <label for="flatNumber">Flat Number</label>
+                    <input id="flatNumber" required>
+                </div>
+                <div>
+                    <label for="residentName">Resident Name</label>
+                    <input id="residentName" required>
+                </div>
+            </div>
+            <button type="submit">Add Flat</button>
+            <div id="message" class="message"></div>
+        </form>
+    </section>
+
+    <section class="panel">
+        <h2>Flat Records</h2>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr><th>ID</th><th>Flat Number</th><th>Resident Name</th></tr>
+                </thead>
+                <tbody>
+                    <tr th:each="flat : ${flats}">
+                        <td th:text="${flat.id}"></td>
+                        <td th:text="${flat.flatNumber}"></td>
+                        <td th:text="${flat.residentName}"></td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(flats)}">
+                        <td colspan="3">No flats found.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+<script>
+    document.getElementById("flatForm").addEventListener("submit", async function(e) {
+        e.preventDefault();
+        const message = document.getElementById("message");
+        const data = {
+            flatNumber: document.getElementById("flatNumber").value.trim(),
+            residentName: document.getElementById("residentName").value.trim()
+        };
+
+        message.className = "message";
+        message.textContent = "Saving...";
+
+        try {
+            const response = await fetch("/api/flats", {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify(data)
+            });
+
+            if (!response.ok) {
+                const error = await response.json().catch(() => ({}));
+                throw new Error(error.message || error.error || "Request failed: " + response.status);
+            }
+
+            message.className = "message success";
+            message.textContent = "Flat added successfully.";
+            this.reset();
+            setTimeout(() => location.reload(), 700);
+        } catch (error) {
+            message.className = "message error";
+            message.textContent = error.message;
+        }
+    });
+</script>
+</body>
+</html>
