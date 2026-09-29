@@ -1,12 +1,14 @@
-
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <title>ParkSpot | Dashboard</title>
 
     <style>
+
         * {
             box-sizing: border-box;
         }
@@ -18,12 +20,13 @@
             color: #24344d;
         }
 
+        /* ================= SIDEBAR ================= */
+
         .layout {
             display: flex;
             min-height: 100vh;
         }
 
-        /* Simple sidebar */
         .sidebar {
             width: 245px;
             background: white;
@@ -64,7 +67,8 @@
             background: #edf4ff;
         }
 
-        /* Main content */
+        /* ================= MAIN ================= */
+
         .main {
             flex: 1;
             min-width: 0;
@@ -77,6 +81,8 @@
             color: #24344d;
         }
 
+        /* ================= FILTERS ================= */
+
         .filters {
             display: flex;
             gap: 14px;
@@ -84,7 +90,8 @@
             flex-wrap: wrap;
         }
 
-        select, input[type="date"] {
+        select,
+        input[type="date"] {
             padding: 12px 15px;
             border: 1px solid #cbd5e1;
             border-radius: 8px;
@@ -94,7 +101,14 @@
             min-width: 200px;
         }
 
-       
+        select:focus,
+        input[type="date"]:focus {
+            outline: 2px solid #93c5fd;
+            border-color: #2563eb;
+        }
+
+        /* ================= CARDS ================= */
+
         .cards {
             display: grid;
             grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -138,7 +152,8 @@
             color: #94600c;
         }
 
-        /* Content panels */
+        /* ================= PANELS ================= */
+
         .section-title {
             font-size: 21px;
             margin: 0 0 18px;
@@ -164,6 +179,8 @@
             margin: 0 0 22px;
         }
 
+        /* ================= SUMMARY ================= */
+
         .summary {
             display: flex;
             gap: 35px;
@@ -188,7 +205,8 @@
             color: #16a34a;
         }
 
-        /* Tables */
+        /* ================= TABLE ================= */
+
         .table-panel {
             background: white;
             border: 1px solid #e5eaf0;
@@ -211,7 +229,8 @@
             font-weight: 600;
         }
 
-        th, td {
+        th,
+        td {
             padding: 15px;
             border-bottom: 1px solid #edf0f4;
         }
@@ -236,7 +255,27 @@
             padding: 35px;
         }
 
+        /* ================= REFRESH BUTTON ================= */
+
+        .refresh-button {
+            padding: 12px 18px;
+            border: none;
+            border-radius: 8px;
+            background: #2563eb;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .refresh-button:hover {
+            background: #1d4ed8;
+        }
+
+        /* ================= RESPONSIVE ================= */
+
         @media (max-width: 1000px) {
+
             .cards {
                 grid-template-columns: repeat(2, 1fr);
             }
@@ -247,6 +286,7 @@
         }
 
         @media (max-width: 650px) {
+
             .layout {
                 flex-direction: column;
             }
@@ -289,145 +329,471 @@
                 padding: 20px 8px;
             }
 
-            select, input[type="date"] {
+            select,
+            input[type="date"] {
                 width: 100%;
             }
         }
+
     </style>
+
 </head>
 
 <body>
+
 <div class="layout">
 
+    <!-- ================= SIDEBAR ================= -->
+
     <aside class="sidebar">
-        <div class="logo">ParkSpot</div>
 
-        <div class="nav-title">MENU</div>
-        <nav class="nav">
-            <a th:href="@{/}" class="active">Dashboard</a>
-            <a th:href="@{/visitors}">Visitors</a>
-            <a th:href="@{/flats}">Flats</a>
-            <a th:href="@{/parking-slots}">Parking Slots</a>
-            <a th:href="@{/daily-log}">Daily Log</a>
-        </nav>
-    </aside>
-
-    <main class="main">
-        <h1>Parking Dashboard</h1>
-
-        <div class="filters">
-            <select aria-label="Select parking slot">
-                <option value="">All Parking Slots</option>
-                <option th:each="slot : ${slots}"
-                        th:value="${slot.id}"
-                        th:text="${slot.slotNumber}">
-                </option>
-            </select>
-
-            <input type="date" aria-label="Select date"
-                   th:value="${#temporals.format(
-                       T(java.time.LocalDate).now(), 'yyyy-MM-dd')}">
+        <div class="logo">
+            ParkSpot
         </div>
 
+        <div class="nav-title">
+            MENU
+        </div>
+
+        <nav class="nav">
+
+            <a th:href="@{/}"
+               class="active">
+                Dashboard
+            </a>
+
+            <a th:href="@{/visitors}">
+                Visitors
+            </a>
+
+            <a th:href="@{/flats}">
+                Flats
+            </a>
+
+            <a th:href="@{/parking-slots}">
+                Parking Slots
+            </a>
+
+            <a th:href="@{/daily-log}">
+                Daily Log
+            </a>
+
+        </nav>
+
+    </aside>
+
+
+    <!-- ================= MAIN CONTENT ================= -->
+
+    <main class="main">
+
+        <h1>
+            Parking Dashboard
+        </h1>
+
+
+        <!-- ================= FILTERS ================= -->
+
+        <form class="filters"
+              method="get"
+              th:action="@{/}">
+
+            <!-- Parking Slot -->
+
+            <select
+                    name="slotId"
+                    aria-label="Select parking slot"
+                    onchange="this.form.submit()">
+
+                <option value=""
+                        th:selected="${selectedSlotId == null}">
+                    All Parking Slots
+                </option>
+
+                <option
+                        th:each="slot : ${slots}"
+                        th:value="${slot.id}"
+                        th:text="${slot.slotNumber}"
+                        th:selected="${selectedSlotId != null && selectedSlotId == slot.id}">
+                </option>
+
+            </select>
+
+
+            <!-- Date -->
+
+            <input
+                    type="date"
+                    name="date"
+                    aria-label="Select date"
+                    th:value="${selectedDate}"
+                    onchange="this.form.submit()">
+
+
+            <!-- Refresh -->
+
+            <button
+                    type="button"
+                    class="refresh-button"
+                    onclick="window.location.href='/'">
+
+                Refresh
+
+            </button>
+
+        </form>
+
+
+        <!-- ================= SUMMARY CARDS ================= -->
+
         <section class="cards">
+
+            <!-- Total Slots -->
+
             <div class="card blue">
-                <h2 th:text="${slotCount}">0</h2>
-                <p>Total Slots</p>
+
+                <h2 th:text="${slotCount}">
+                    0
+                </h2>
+
+                <p>
+                    Total Slots
+                </p>
+
             </div>
+
+
+            <!-- Available -->
 
             <div class="card green">
-                <h2 th:text="${availableCount}">0</h2>
-                <p>Available</p>
+
+                <h2 th:text="${availableCount}">
+                    0
+                </h2>
+
+                <p>
+                    Available
+                </p>
+
             </div>
+
+
+            <!-- Total Flats -->
 
             <div class="card cyan">
-                <h2 th:text="${flatCount}">0</h2>
-                <p>Total Flats</p>
+
+                <h2 th:text="${flatCount}">
+                    0
+                </h2>
+
+                <p>
+                    Total Flats
+                </p>
+
             </div>
+
+
+            <!-- Visitors -->
 
             <div class="card yellow">
-                <h2 th:text="${visitorCount}">0</h2>
-                <p>Total Visitors</p>
+
+                <h2 th:text="${visitorCount}">
+                    0
+                </h2>
+
+                <p>
+                    Visitors
+                </p>
+
             </div>
+
         </section>
 
-        <h2 class="section-title">Overall Parking</h2>
+
+        <!-- ================= OVERALL PARKING ================= -->
+
+        <h2 class="section-title">
+            Overall Parking
+        </h2>
+
 
         <section class="panels">
+
+
+            <!-- Parking Overview -->
+
             <div class="panel">
-                <h3>Parking Overview</h3>
+
+                <h3>
+                    Parking Overview
+                </h3>
+
 
                 <table>
+
                     <thead>
+
                     <tr>
-                        <th>Slot Number</th>
-                        <th>Status</th>
+
+                        <th>
+                            Slot Number
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
                     </tr>
+
                     </thead>
+
+
                     <tbody>
-                    <tr th:each="slot : ${slots}">
-                        <td th:text="${slot.slotNumber}">P-01</td>
+
+
+                    <!-- Display filtered slots -->
+
+                    <tr th:each="slot : ${displayedSlots}">
+
+                        <td
+                                th:text="${slot.slotNumber}">
+                            P-01
+                        </td>
+
+
                         <td>
-                            <span class="status"
-                                  th:classappend="${slot.occupied} ? ' occupied' : ''"
-                                  th:text="${slot.occupied ? 'Occupied' : 'Available'}">
+
+                            <span
+                                    class="status"
+                                    th:classappend="${slot.occupied} ? ' occupied' : ''"
+                                    th:text="${slot.occupied ? 'Occupied' : 'Available'}">
+
                                 Available
+
                             </span>
+
                         </td>
+
                     </tr>
-                    <tr th:if="${#lists.isEmpty(slots)}">
-                        <td colspan="2" class="empty">
-                            No parking slots have been added.
+
+
+                    <!-- Empty -->
+
+                    <tr
+                            th:if="${#lists.isEmpty(displayedSlots)}">
+
+                        <td
+                                colspan="2"
+                                class="empty">
+
+                            No parking slots found.
+
                         </td>
+
                     </tr>
+
+
                     </tbody>
+
                 </table>
+
             </div>
+
+
+            <!-- Parking Summary -->
 
             <div class="panel">
-                <h3>Parking Summary</h3>
+
+                <h3>
+                    Parking Summary
+                </h3>
+
 
                 <div class="summary">
+
+
+                    <!-- Occupied -->
+
                     <div>
-                        <span>Occupied</span>
-                        <strong class="red"
-                                th:text="${slotCount - availableCount}">0</strong>
+
+                        <span>
+                            Occupied
+                        </span>
+
+                        <strong
+                                class="red"
+                                th:text="${occupiedCount}">
+
+                            0
+
+                        </strong>
+
                     </div>
+
+
+                    <!-- Available -->
+
                     <div>
-                        <span>Available</span>
-                        <strong class="available"
-                                th:text="${availableCount}">0</strong>
+
+                        <span>
+                            Available
+                        </span>
+
+                        <strong
+                                class="available"
+                                th:text="${availableCount}">
+
+                            0
+
+                        </strong>
+
                     </div>
+
+
                 </div>
+
             </div>
+
+
         </section>
+
+
+        <!-- ================= RECENT VISITORS ================= -->
 
         <section class="table-panel">
-            <h2 class="section-title">Recent Visitors</h2>
+
+            <h2 class="section-title">
+                Recent Visitors
+            </h2>
+
 
             <table>
+
                 <thead>
+
                 <tr>
-                    <th>Name</th>
-                    <th>Vehicle Number</th>
-                    <th>Entry Time</th>
+
+                    <th>
+                        Name
+                    </th>
+
+                    <th>
+                        Vehicle Number
+                    </th>
+
+                    <th>
+                        Entry Time
+                    </th>
+
+                    <th>
+                        Exit Time
+                    </th>
+
                 </tr>
+
                 </thead>
+
+
                 <tbody>
-                <tr th:each="visitor : ${visitors}">
-                    <td th:text="${visitor.visitorName}">Yash</td>
-                    <td th:text="${visitor.vehicleNumber}">TN21YA2008</td>
-                    <td th:text="${visitor.entryTime}">Entry Time</td>
-                </tr>
-                <tr th:if="${#lists.isEmpty(visitors)}">
-                    <td colspan="3" class="empty">
-                        No visitors recorded yet.
+
+
+                <tr
+                        th:each="visitor : ${visitors}">
+
+                    <td
+                            th:text="${visitor.visitorName}">
+                        Yash
                     </td>
+
+
+                    <td
+                            th:text="${visitor.vehicleNumber}">
+                        TN21YA2008
+                    </td>
+
+
+                    <td
+                            th:text="${visitor.entryTime}">
+                        Entry Time
+                    </td>
+
+
+                    <td>
+
+                        <span
+                                th:if="${visitor.exitTime != null}"
+                                th:text="${visitor.exitTime}">
+                        </span>
+
+                        <span
+                                th:if="${visitor.exitTime == null}">
+                            Still Inside
+                        </span>
+
+                    </td>
+
                 </tr>
+
+
+                <!-- No visitors -->
+
+                <tr
+                        th:if="${#lists.isEmpty(visitors)}">
+
+                    <td
+                            colspan="4"
+                            class="empty">
+
+                        No visitors recorded for this date.
+
+                    </td>
+
+                </tr>
+
+
                 </tbody>
+
             </table>
+
         </section>
+
+
     </main>
+
 </div>
+
+
+<!-- ================= SMALL JS ================= -->
+
+<script>
+
+    /*
+     * When the Dashboard link is clicked,
+     * always load fresh data from the server.
+     */
+
+    document.addEventListener("DOMContentLoaded", function () {
+
+        const dashboardLink =
+            document.querySelector('.nav a[href="/"]');
+
+        if (dashboardLink) {
+
+            dashboardLink.addEventListener("click", function (event) {
+
+                event.preventDefault();
+
+                window.location.href = "/";
+
+            });
+
+        }
+
+    });
+
+</script>
+
+
 </body>
+
 </html>
